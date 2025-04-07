@@ -8,13 +8,20 @@ import io.ktor.client.request.get
 
 class Repository(private val httpClient: HttpClient){
 
-    suspend fun search(city:String): CityWeather? {
+    suspend fun search(city:String): WeatherResponse?{
         //call get from client
         val response = httpClient.get(SEARCH_CITY.format(city))
         //get response as a json string
         val json = response.body<JsonObject>().toString()
         println(json)
-        return Gson().fromJson(json, CityWeather::class.java )
+        return Gson().fromJson(json, WeatherResponse::class.java )
+    }
+
+    suspend fun getLocation() : Location?{
+        val response = httpClient.get(LOCATION_URL)
+        val json = response.body<JsonObject>().toString()
+        println("my location: " + json)
+        return Gson().fromJson(json, Location::class.java)
     }
 
 
