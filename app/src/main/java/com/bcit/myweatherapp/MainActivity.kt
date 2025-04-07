@@ -36,80 +36,56 @@ import com.bcit.myweatherapp.data.client
 import com.bcit.myweatherapp.routes.Detail
 import com.bcit.myweatherapp.routes.Home
 import com.bcit.myweatherapp.routes.MyTopNav
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+
 
 class MainActivity : ComponentActivity() {
 
-    private val repository by lazy{
+    private val repository by lazy {
         Repository(client)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
-            val cityWeatherState = viewModel { CityWeatherState(repository) }
-            val locationState = remember { LocationState(repository) }
-            val cityWeather = cityWeatherState.cityWeather
-            val navController = rememberNavController()
+            var cityWeatherState = viewModel { CityWeatherState(repository) }
+            var locationState = remember { LocationState(repository) }
+            var cityWeather = cityWeatherState.cityWeather
 
 
 
-
-
-
-
-            Box(modifier = Modifier
-                .safeDrawingPadding()
-                .fillMaxSize()
-            ){
+            Box(
+                modifier = Modifier
+                    .safeDrawingPadding()
+                    .fillMaxSize()
+            ) {
 
                 if (cityWeather != null) {
-                    MainContent(cityWeather,locationState,cityWeatherState)
+                    MainContent(
+                        cityWeather = cityWeather,
+                        locationState = locationState,
+                        cityWeatherState = cityWeatherState
+                    )
                 }
-//                LazyColumn {
-//
-//
-//
-//                    item{
-//                        MyLocation(locationState, cityWeatherState)
-//                        Text("${locationState.location}")
-//
-//                    }
-//                    item {
-//                        Search(cityWeatherState)
-//                    }
-//                    item{
-//                        Text( cityWeather.toString() )
-//
-//                        AsyncImage(
-//                            model = IMAGE.format(cityWeather?.weather?.get(0)?.icon),
-//                            contentDescription = null,
-//                            modifier = Modifier
-//                                .safeDrawingPadding()
-//                                .size(100.dp)
-//
-//                        )
-//                    }
-//
-//                }
             }
+
+
         }
     }
-
+    
 
     @Composable
     fun MainContent(
         cityWeather: WeatherResponse,
         locationState: LocationState,
-        cityWeatherState: CityWeatherState
-    ){
+        cityWeatherState: CityWeatherState,
+
+    ) {
         val navController = rememberNavController()
 
-
-
-        Scaffold (topBar = {
+        Scaffold(topBar = {
             Column {
 
                 MyTopNav(navController)
@@ -117,14 +93,13 @@ class MainActivity : ComponentActivity() {
 
             }
 
-        }){
-                innerPadding ->
+        }) { innerPadding ->
             NavHost(
                 navController = navController,
                 startDestination = "home",
                 modifier = Modifier.padding(innerPadding)
 
-            ){
+            ) {
 
                 // destination Home
                 composable("home") {
@@ -133,14 +108,13 @@ class MainActivity : ComponentActivity() {
                 }
 
                 // destination details
-                composable("detail"){
+                composable("detail") {
                     Detail(cityWeather)
 
                 }
 
             }
         }
-
 
 
     }

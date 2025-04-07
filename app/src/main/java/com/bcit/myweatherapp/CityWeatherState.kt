@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class CityWeatherState(
     private val repository: Repository) : ViewModel(){
@@ -21,39 +22,28 @@ class CityWeatherState(
     var searchFlow = MutableStateFlow("")
 
     init {
-        getWeather("London")
         getCityInput()
+//        getWeather("London")
     }
 
-    private fun getWeather(city: String) {
-        viewModelScope.launch {
-            cityWeather = repository.search(city)
-        }
+    suspend fun getWeather(city: String) {
+        cityWeather = repository.search(city)
     }
 
     private fun getCityInput(){
         viewModelScope.launch {
             //collection point
             searchFlow
-                .debounce(5000L)
+                .debounce(2000L)
                 .collect{
                     cityWeather = repository.search(it)
                 }
         }
-        println("This lin" + cityWeather)
 
     }
 
 }
-//
-//    private fun getMyWeather(){
-//        val myCity = locationState.location?.city
-//        println(myCity)
-//        viewModelScope.launch {
-//            cityWeather = myCity?.let { repository.search(it) }
-//        }
-//
-//    }
+
 
 
 

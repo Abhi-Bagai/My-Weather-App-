@@ -38,7 +38,7 @@ fun MyTopNav(
                 style = TextStyle(
                     fontFamily = merriweatherFont,
                     fontSize = 30.sp,
-                    color = Color(0xFF020356)
+                    color = Color(0xFFE86C49)
 
                 )
             )
