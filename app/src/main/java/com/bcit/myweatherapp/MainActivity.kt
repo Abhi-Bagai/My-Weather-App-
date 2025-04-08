@@ -20,8 +20,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,11 +32,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import com.bcit.myweatherapp.data.FavCityRepository
 import com.bcit.myweatherapp.data.IMAGE
+import com.bcit.myweatherapp.data.MyDatabase
 import com.bcit.myweatherapp.data.Repository
 import com.bcit.myweatherapp.data.WeatherResponse
 import com.bcit.myweatherapp.data.client
 import com.bcit.myweatherapp.routes.Detail
+import com.bcit.myweatherapp.routes.Favorite
 import com.bcit.myweatherapp.routes.Home
 import com.bcit.myweatherapp.routes.MyTopNav
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +47,14 @@ import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : ComponentActivity() {
+
+    private val db by lazy {
+        MyDatabase.getDatabase(applicationContext)
+    }
+
+    private val favCityRepo by lazy{
+        FavCityRepository(db.favDao())
+    }
 
     private val repository by lazy {
         Repository(client)
@@ -53,7 +67,7 @@ class MainActivity : ComponentActivity() {
             var cityWeatherState = viewModel { CityWeatherState(repository) }
             var locationState = remember { LocationState(repository) }
             var cityWeather = cityWeatherState.cityWeather
-
+            val favCityState = FavCityState(favCityRepo)
 
 
             Box(
@@ -66,8 +80,12 @@ class MainActivity : ComponentActivity() {
                     MainContent(
                         cityWeather = cityWeather,
                         locationState = locationState,
-                        cityWeatherState = cityWeatherState
+                        cityWeatherState = cityWeatherState,
+                        favCityState = favCityState
                     )
+                } else {
+                    Text( "Abhi's Weather App is Loading...")
+
                 }
             }
 
@@ -81,16 +99,15 @@ class MainActivity : ComponentActivity() {
         cityWeather: WeatherResponse,
         locationState: LocationState,
         cityWeatherState: CityWeatherState,
+        favCityState : FavCityState,
+
 
     ) {
         val navController = rememberNavController()
 
         Scaffold(topBar = {
             Column {
-
-                MyTopNav(navController)
-
-
+                MyTopNav(navController, favCityState)
             }
 
         }) { innerPadding ->
@@ -103,13 +120,28 @@ class MainActivity : ComponentActivity() {
 
                 // destination Home
                 composable("home") {
-                    Home(navController, cityWeather, cityWeatherState, locationState, repository)
+                    Home(
+                        navController, cityWeather, cityWeatherState, locationState, repository,
+                        favCityState = favCityState
+                    )
 
                 }
 
                 // destination details
                 composable("detail") {
-                    Detail(cityWeather)
+                    Detail(
+                        cityWeather,
+                        favCityState = favCityState
+                    )
+
+                }
+                // destination favs
+                composable("favorite") {
+                     Favorite(
+                         navController = navController,
+                         favCityState = favCityState,
+                         cityWeatherState
+                     )
 
                 }
 

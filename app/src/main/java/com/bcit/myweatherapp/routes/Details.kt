@@ -37,13 +37,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
+import com.bcit.myweatherapp.FavCityState
 import com.bcit.myweatherapp.R
+import com.bcit.myweatherapp.data.FavoriteCity
 import com.bcit.myweatherapp.data.IMAGE
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
-fun Detail(cityInfo: WeatherResponse) {
+fun Detail(
+    cityInfo: WeatherResponse,
+    favCityState: FavCityState) {
     Box(modifier = Modifier.safeDrawingPadding()) {
         Column(
             modifier = Modifier
@@ -205,6 +211,30 @@ fun Detail(cityInfo: WeatherResponse) {
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // favourites icon orange
+            IconButton(
+                onClick = {
+
+                    val favCity = FavoriteCity(cityName = cityInfo.name )
+                    runBlocking {
+                        favCityState.add(favCity)
+                    }
+
+                }
+            ) {
+                Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp),
+
+
+                )
+            }
+
         }
     }
 }

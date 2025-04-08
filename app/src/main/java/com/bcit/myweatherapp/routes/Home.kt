@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -39,8 +40,11 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,8 +60,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.bcit.myweatherapp.CityWeatherState
+import com.bcit.myweatherapp.FavCityState
 import com.bcit.myweatherapp.LocationState
 import com.bcit.myweatherapp.R
+import com.bcit.myweatherapp.data.FavoriteCity
 import com.bcit.myweatherapp.data.IMAGE
 import com.bcit.myweatherapp.data.Repository
 import com.bcit.myweatherapp.data.WeatherResponse
@@ -65,7 +71,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-
 
 data class CityCard(val city: String, val color: Long)
 
@@ -75,7 +80,8 @@ fun Home(
     cityWeather: WeatherResponse,
     cityWeatherState: CityWeatherState,
     locationState: LocationState,
-    repository: Repository
+    repository: Repository,
+    favCityState: FavCityState
 ) {
     val cities = stringArrayResource(R.array.cities)
     val popularCityList = mutableListOf<CityCard>()
@@ -90,18 +96,21 @@ fun Home(
         0xFFade8f4,
         0xFFcaf0f8
     )
-
     for (i in cities.indices) {
         popularCityList.add(CityCard(cities[i], colorsList[i]))
-
     }
     var stateListCity = remember {
         popularCityList.toMutableStateList()
     }
     val merriweatherFont = FontFamily(
         Font(R.font.merriweather_regular, FontWeight.Normal),
+    )
 
-        )
+    val favCities = mutableListOf<FavoriteCity>()
+
+    for (city in favCityState.cities){
+        favCities.add(FavoriteCity(null,city.cityName))
+    }
 
 
     LazyColumn(
@@ -120,7 +129,6 @@ fun Home(
                 Search(
                     cityWeatherState,
                     merriweatherFont,
-                    navController
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 MyLocation(
@@ -130,14 +138,10 @@ fun Home(
                     merriweatherFont,
                     navController
                 )
-
             }
-
         }
         item {
-
             CityPreview(navController, cityWeather)
-
         }
         item {
             Row(
@@ -147,25 +151,33 @@ fun Home(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-
                     text = "Popular Cities",
                     style = TextStyle(
                         fontFamily = merriweatherFont,
                         fontSize = 25.sp,
                         color = Color(0xFF020356)
-
                     )
                 )
             }
         }
+
+
+
         items(stateListCity.size) {
+
+            for (city in stateListCity){
+
+            }
+
             MyCard(
                 navController,
-                cityWeather,
                 stateListCity[it],
                 merriweatherFont,
                 cityWeatherState,
-                repository
+                repository,
+
+
+
             )
         }
     }
@@ -174,13 +186,16 @@ fun Home(
 @Composable
 fun MyCard(
     navController: NavController,
-    cityWeather: WeatherResponse,
     cityCard: CityCard,
     font: FontFamily,
     cityWeatherState: CityWeatherState,
     repository: Repository,
+    isFavourite: Boolean
 
-    ) {
+) {
+
+
+
     val scope = rememberCoroutineScope()
     Card(
         modifier = Modifier
@@ -192,16 +207,14 @@ fun MyCard(
                     cityWeatherState.cityWeather = repository.search(cityCard.city)
                     navController.navigate("detail")
                 }
-
             }
-
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(cityCard.color))
                 .padding(20.dp),
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
 
         ) {
@@ -211,23 +224,43 @@ fun MyCard(
                     fontFamily = font,
                     fontSize = 30.sp,
                     color = Color(0xFFD03B12)
-
                 )
             )
 
-        }
+            // favourites icon orange
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        val city = FavoriteCity(cityName = cityCard.city)
+                        isFavorite = !isFavorite
+                        if (isFavorite) {
+                            favCityState.remove(city)
+                        } else {
+                            favCityState.add(city)
+                        }
+                        favCityState.refresh()
+                    }
+                }
+            ) {
+                Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp),
+                    tint = if (isFavorite) Color(0xFFD03B12) else Color.Gray
+                )
+            }
 
+
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Search(
     cityWeatherState: CityWeatherState,
     font: FontFamily,
-    navController: NavController
 ) {
-
     TextField(
         cityWeatherState.searchFlow.collectAsState().value,
         onValueChange = { cityWeatherState.searchFlow.value = it },
@@ -236,10 +269,9 @@ fun Search(
                 "Search City",
                 style = TextStyle(
                     fontFamily = font,
-                    fontSize = 18.sp,
+                    fontSize = 12.sp,
                     color = Color(0xFFF36F4D)
                 )
-
             )
         },
         modifier = Modifier
@@ -275,7 +307,7 @@ fun MyLocation(
     navController: NavController
 ) {
     val scope = rememberCoroutineScope()
-    val location = locationState.location
+//    val location = locationState.location
 
     Button(
         colors = ButtonColors(

@@ -6,14 +6,10 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.serialization.gson.gson
 
 
-val client = HttpClient{
+val client = HttpClient {
 
-    install(ContentNegotiation){
+    install(ContentNegotiation) {
         gson()
     }
-
-//    defaultRequest {
-////        header(HttpHeaders.Authorization, "Bearer")
-//    }
 
 }

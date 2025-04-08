@@ -9,6 +9,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,12 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bcit.myweatherapp.FavCityState
 import com.bcit.myweatherapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopNav(
-    navController: NavController
+    navController: NavController,
+    favCityState: FavCityState
 ){
     val merriweatherFont = FontFamily(
         Font(R.font.merriweather_regular, FontWeight.Normal),
@@ -48,7 +51,13 @@ fun MyTopNav(
             IconButton(
                 onClick = {
                     navController.navigate("home")
-                }
+                },
+                colors = IconButtonColors(
+                    containerColor = Color(0x00EC6E4C),
+                    contentColor = Color(0xFF474749),
+                    disabledContainerColor = Color(0xFFEC6E4C),
+                    disabledContentColor = Color(0xFFEC6E4C)
+                )
             ) {
                 Icon(
                     Icons.Default.Home,
@@ -62,8 +71,15 @@ fun MyTopNav(
         actions = {
             IconButton(
                 onClick = {
-                    navController.navigate("home")
-                }
+                    navController.navigate("favorite")
+                    favCityState.refresh()
+                },
+                colors = IconButtonColors(
+                    containerColor = Color(0x00EC6E4C),
+                    contentColor = Color(0xFAEC6E4C),
+                    disabledContainerColor = Color(0xFFEC6E4C),
+                    disabledContentColor = Color(0xFFEC6E4C)
+                )
             ) {
                 Icon(
                     Icons.Default.Favorite,

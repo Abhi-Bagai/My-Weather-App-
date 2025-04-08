@@ -13,7 +13,7 @@ class Repository(private val httpClient: HttpClient){
         val response = httpClient.get(SEARCH_CITY.format(city))
         //get response as a json string
         val json = response.body<JsonObject>().toString()
-        println(json)
+//        println(json)
         return Gson().fromJson(json, WeatherResponse::class.java )
     }
 

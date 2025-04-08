@@ -23,7 +23,7 @@ class CityWeatherState(
 
     init {
         getCityInput()
-//        getWeather("London")
+
     }
 
     suspend fun getWeather(city: String) {
