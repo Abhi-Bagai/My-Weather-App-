@@ -1,9 +1,7 @@
 package com.bcit.myweatherapp.routes
 
 import android.icu.text.SimpleDateFormat
-import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.bcit.myweatherapp.data.WeatherResponse
 import kotlin.math.roundToInt
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.material.icons.Icons
@@ -35,9 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.navigation.NavController
 import com.bcit.myweatherapp.FavCityState
 import com.bcit.myweatherapp.R
 import com.bcit.myweatherapp.data.FavoriteCity
@@ -45,7 +40,6 @@ import com.bcit.myweatherapp.data.IMAGE
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
-@OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun Detail(
     cityInfo: WeatherResponse,
