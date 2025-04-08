@@ -82,8 +82,7 @@ fun Home(
     cityWeatherState: CityWeatherState,
     locationState: LocationState,
     repository: Repository,
-
-    favCitiesRepo: FavCityRepository
+    favCityState: FavCityState
 ) {
     val cities = stringArrayResource(R.array.cities)
     val popularCityList = mutableListOf<CityCard>()
@@ -108,6 +107,7 @@ fun Home(
         Font(R.font.merriweather_regular, FontWeight.Normal),
     )
 
+    val favCities = favCityState.cities
 
 
 
@@ -160,24 +160,20 @@ fun Home(
             }
         }
 
+        for(city in favCities){
+            println(city.cityName)
+        }
 
 
         items(stateListCity.size) {
-
-            for (city in stateListCity){
-
-            }
-
             MyCard(
                 navController,
                 stateListCity[it],
                 merriweatherFont,
                 cityWeatherState,
                 repository,
-                favCitiesRepo
-
-
-
+                favCities,
+                favCityState
             )
         }
     }
@@ -190,10 +186,15 @@ fun MyCard(
     font: FontFamily,
     cityWeatherState: CityWeatherState,
     repository: Repository,
-    favCitiesRepo: FavCityRepository
+    favCities: List<FavoriteCity>,
+    favCityState: FavCityState
 
 ) {
 
+
+    val city = FavoriteCity(cityName = cityCard.city)
+    var isFavCity = favCities.any { it.cityName == cityCard.city }
+    println("city: " + cityCard.city + ", isFav: " + isFavCity )
     val scope = rememberCoroutineScope()
     Card(
         modifier = Modifier
@@ -217,7 +218,7 @@ fun MyCard(
 
         ) {
             Text(
-                text = "${cityCard.city}",
+                text = cityCard.city,
                 style = TextStyle(
                     fontFamily = font,
                     fontSize = 30.sp,
@@ -229,14 +230,13 @@ fun MyCard(
             IconButton(
                 onClick = {
                     scope.launch {
-                        val city = FavoriteCity(cityName = cityCard.city)
-                        isFavorite = !isFavorite
-                        if (isFavorite) {
+                        if (isFavCity) {
                             favCityState.remove(city)
                         } else {
                             favCityState.add(city)
                         }
                         favCityState.refresh()
+                        isFavCity = !isFavCity
                     }
                 }
             ) {
@@ -245,10 +245,9 @@ fun MyCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(40.dp),
-                    tint = if (isFavorite) Color(0xFFD03B12) else Color.Gray
+                    tint = if (isFavCity) Color(0xFFD03B12) else Color.Gray
                 )
             }
-
 
         }
     }
@@ -286,7 +285,7 @@ fun Search(
         ),
         textStyle = TextStyle(
             fontFamily = font,
-            fontSize = 25.sp,
+            fontSize = 15.sp,
             color = Color(0xFFEB5E28)
         )
 
