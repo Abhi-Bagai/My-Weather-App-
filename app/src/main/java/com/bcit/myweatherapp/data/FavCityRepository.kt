@@ -10,8 +10,6 @@ class FavCityRepository (private val favDao: FavDao) {
         } catch (e: SQLiteConstraintException) {
             // Handle duplicate
         }
-
-
     }
 
     fun getAll() : List<FavoriteCity>{

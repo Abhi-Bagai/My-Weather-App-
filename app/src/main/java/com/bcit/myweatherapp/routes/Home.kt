@@ -63,6 +63,7 @@ import com.bcit.myweatherapp.CityWeatherState
 import com.bcit.myweatherapp.FavCityState
 import com.bcit.myweatherapp.LocationState
 import com.bcit.myweatherapp.R
+import com.bcit.myweatherapp.data.FavCityRepository
 import com.bcit.myweatherapp.data.FavoriteCity
 import com.bcit.myweatherapp.data.IMAGE
 import com.bcit.myweatherapp.data.Repository
@@ -81,7 +82,8 @@ fun Home(
     cityWeatherState: CityWeatherState,
     locationState: LocationState,
     repository: Repository,
-    favCityState: FavCityState
+
+    favCitiesRepo: FavCityRepository
 ) {
     val cities = stringArrayResource(R.array.cities)
     val popularCityList = mutableListOf<CityCard>()
@@ -106,11 +108,8 @@ fun Home(
         Font(R.font.merriweather_regular, FontWeight.Normal),
     )
 
-    val favCities = mutableListOf<FavoriteCity>()
 
-    for (city in favCityState.cities){
-        favCities.add(FavoriteCity(null,city.cityName))
-    }
+
 
 
     LazyColumn(
@@ -175,6 +174,7 @@ fun Home(
                 merriweatherFont,
                 cityWeatherState,
                 repository,
+                favCitiesRepo
 
 
 
@@ -190,11 +190,9 @@ fun MyCard(
     font: FontFamily,
     cityWeatherState: CityWeatherState,
     repository: Repository,
-    isFavourite: Boolean
+    favCitiesRepo: FavCityRepository
 
 ) {
-
-
 
     val scope = rememberCoroutineScope()
     Card(
